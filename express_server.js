@@ -13,10 +13,10 @@ const urlDatabase = {
 };
 
 //testing function required
-function generateRandomString() {
+const generateRandomString = function() {
   let temp = uuidv4().split('-')[0].slice(2,10);
   return temp;
-}
+};
 
 app.get('/', (req, res) => {
   res.send("Hello!");
@@ -43,7 +43,7 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
+  const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
@@ -53,9 +53,15 @@ app.get('/hello', (req, res) => {
 
 //note not checking for existing urls yet before adding
 app.post('/urls', (req, res) => {
-  const key = generateRandomString()
+  const key = generateRandomString();
   urlDatabase[key] = req.body.longURL;
   res.redirect(`/urls/${key}`);
+});
+
+app.post('/urls/:shortURL/delete', (req, res) => {
+  const key = req.params.shortURL;
+  delete urlDatabase[key];
+  res.redirect(`/urls`);
 });
 
 app.listen(PORT, () => {
