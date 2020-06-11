@@ -58,6 +58,14 @@ app.post('/urls', (req, res) => {
   res.redirect(`/urls/${key}`);
 });
 
+//this route is used to modify an existing url
+app.post('/urls/:id', (req, res) => {
+  const key = req.params.id;
+  urlDatabase[key] = req.body.longURL;
+  // console.log('urlDatabase: ', urlDatabase);
+  res.redirect('/urls');
+});
+
 app.post('/urls/:shortURL/delete', (req, res) => {
   const key = req.params.shortURL;
   delete urlDatabase[key];
