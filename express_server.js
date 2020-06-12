@@ -1,10 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
+const cookieParser = require('cookie-parser');
 const app = express();
 const PORT = 8080;
 
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -19,6 +21,7 @@ const generateRandomString = function() {
 };
 
 app.get('/', (req, res) => {
+  console.log('Cookies: ', req.cookies.username);
   res.send("Hello!");
 });
 
@@ -27,18 +30,23 @@ app.get('/urls.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  let templateVars = {urls: urlDatabase};
+  const username = req.cookies.username;
+  let templateVars = {urls: urlDatabase, username};
   res.render('./urls_index', templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
-  res.render("./urls_new");
+  const username = req.cookies.username;
+  let templateVars = {username};
+  res.render("./urls_new", templateVars);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
   // console.log(req.params.shortURL);
   const shortURL = req.params.shortURL;
-  let templateVars = {shortURL, longURL: urlDatabase[shortURL]};
+  // add username from cookie and add to template vars
+  const username = req.cookies.username;
+  let templateVars = {shortURL, longURL: urlDatabase[shortURL], username};
   res.render('./urls_show', templateVars);
 });
 
@@ -70,6 +78,18 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   const key = req.params.shortURL;
   delete urlDatabase[key];
   res.redirect(`/urls`);
+});
+
+app.post('/login', (req, res) => {
+  console.log("username", req.body.username);
+  res.cookie('username', req.body.username); //set cookie's key and value
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  //delete the cookie
+  res.cookie('username', '');
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {

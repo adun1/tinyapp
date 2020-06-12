@@ -10,9 +10,20 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <form class="form-inline" action="/login" method="POST">
-      <input class="form-control" type="text" name="username" placeholder="Username" style="width: 300px; margin: 1em">
-      <button type="submit" class="btn btn-primary">Login</button>
-    </form>
+    <!-- have logged in blah blah blah outside of form
+    2 conditionals-->
+    <% if(username) { %>
+      <h5><%= username %></h5>
+      <!-- button to log out-->
+      <form class="form-inline" action="/logout" method="POST">
+        <button type="submit" class="btn btn-primary" style="margin: .25em">Logout</button>
+      </form>
+    <% } else { %>
+      <form class="form-inline" action="/login" method="POST">
+        <input class="form-control" type="text" name="username" placeholder="Username" style="width: 300px; margin: .25em">
+        <button type="submit" class="btn btn-primary" style="margin: .25em">Login</button>
+      </form>
+    <% } %>
+      
   </nav>
 </header>
