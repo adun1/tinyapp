@@ -55,6 +55,12 @@ app.get('/u/:shortURL', (req, res) => {
   res.redirect(longURL);
 });
 
+app.get('/register', (req, res) => {
+  const username = req.cookies.username;
+  let templateVars = {username};
+  res.render('./url_register', templateVars);
+});
+
 app.get('/hello', (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>");
 });
@@ -90,6 +96,10 @@ app.post('/logout', (req, res) => {
   //delete the cookie
   res.clearCookie('username', '');
   res.redirect('/urls');
+});
+
+app.post('/register', (req, res) => {
+  
 });
 
 app.listen(PORT, () => {
