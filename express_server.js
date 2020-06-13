@@ -16,13 +16,27 @@ const urlDatabase = {
 
 const users = {};
 
+const findUser = function(email) {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return user;
+    }
+  }
+  return undefined;
+};
+
 const checkIfUserExists = function(email) {
+  if(findUser(email) === undefined) return false;
+  return true;
+  
+  /*
   for (const user in users) {
     if (users[user].email === email) {
       return true;
     }
   }
   return false;
+  */
 };
 //testing function required
 const generateRandomString = function() {
@@ -80,6 +94,15 @@ app.get('/register', (req, res) => {
   res.render('./url_register', templateVars);
 });
 
+//created black login catch
+app.get('/login', (req, res) => {
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
+  let templateVars = {user};
+  // console.log("req.cookies = ", req.cookies);
+  res.render('./urls_login', templateVars);
+});
+
 app.get('/hello', (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>");
 });
@@ -105,8 +128,16 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect(`/urls`);
 });
 
+/*
 app.post('/login', (req, res) => {
   console.log("username", req.body.username);
+  res.cookie('username', req.body.username); //set cookie's key and value
+  res.redirect('/urls');
+});
+*/
+
+app.post('/login', (req, res) => {
+  
   res.cookie('username', req.body.username); //set cookie's key and value
   res.redirect('/urls');
 });
