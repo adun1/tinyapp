@@ -72,16 +72,28 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const shortURL = req.params.shortURL;
-  const user_id = req.cookies.user_id;
-  const user = users[user_id];
-  let templateVars = {shortURL, longURL: urlDatabase[shortURL].longURL, user};
-  res.render('./urls_show', templateVars);
+  if (!urlDatabase[req.params.shortURL]) {
+    res.status(400);
+    res.end("Please specify an existing short URL");
+  } else {
+    const shortURL = req.params.shortURL;
+    const user_id = req.cookies.user_id;
+    const user = users[user_id];
+    let templateVars = {shortURL, longURL: urlDatabase[shortURL].longURL, user};
+    res.render('./urls_show', templateVars);
+  }
+  
+  
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+  if (!urlDatabase[req.params.shortURL]) {
+    res.status(400);
+    res.end("Please specify an existing short URL");
+  } else {
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    res.redirect(longURL);
+  }
 });
 
 app.get('/register', (req, res) => {
