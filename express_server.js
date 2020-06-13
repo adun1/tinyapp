@@ -32,7 +32,7 @@ const checkIfUserExists = function(email) {
   if (findUser(email) === undefined) return false;
   return true;
 };
-//testing function required
+
 const generateRandomString = function() {
   let temp = uuidv4().split('-')[0].slice(2,10);
   return temp;
@@ -127,7 +127,6 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect(`/urls`);
 });
 
-//need to update to check if user exists and password is correct
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -149,9 +148,8 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
-//not checking that both email and pass supplied "" is allowed for emal and pass
 app.post('/register', (req, res) => {
-  //check if the id and email are value
+  //check if the id and email are valid
   if ((req.body.email === "") || (req.body.password === "")) {
     res.status(400);
     res.end("Email and Password required");
