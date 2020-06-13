@@ -16,6 +16,11 @@ const urlDatabase = {
 
 const users = {};
 
+const verifyPassword = function(user_id, password) {
+  console.log('verify password, user[user_id]', console.log(users[user_id]));
+  return (users[user_id].password === password);
+};
+
 const findUser = function(email) {
   for (const user in users) {
     if (users[user].email === email) {
@@ -26,17 +31,8 @@ const findUser = function(email) {
 };
 
 const checkIfUserExists = function(email) {
-  if(findUser(email) === undefined) return false;
+  if (findUser(email) === undefined) return false;
   return true;
-  
-  /*
-  for (const user in users) {
-    if (users[user].email === email) {
-      return true;
-    }
-  }
-  return false;
-  */
 };
 //testing function required
 const generateRandomString = function() {
@@ -45,7 +41,6 @@ const generateRandomString = function() {
 };
 
 app.get('/', (req, res) => {
-  // console.log('Cookies: ', req.cookies.username);
   res.send("Hello!");
 });
 
@@ -72,9 +67,7 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  // console.log(req.params.shortURL);
   const shortURL = req.params.shortURL;
-  // add username from cookie and add to template vars
   const user_id = req.cookies.user_id;
   const user = users[user_id];
   let templateVars = {shortURL, longURL: urlDatabase[shortURL], user};
@@ -128,25 +121,20 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect(`/urls`);
 });
 
-/*
-app.post('/login', (req, res) => {
-  console.log("username", req.body.username);
-  res.cookie('username', req.body.username); //set cookie's key and value
-  res.redirect('/urls');
-});
-*/
-
 //need to update to check if user exists and password is correct
 app.post('/login', (req, res) => {
-  /*
-  if(findUser(req.body.email) === undefined) {
-    
+  const email = req.body.email;
+  const password = req.body.password;
+  const id = findUser(email); //id could be undefined checks below
+
+  //make sure the user exists and the provided password is correct
+  if ((!checkIfUserExists(email)) || (!verifyPassword(id, password))) {
+    res.status(403);
+    res.end("Username and password incorrect");
+  } else {
+    res.cookie('user_id', id);
+    res.redirect('/urls');
   }
-  */
-  //worry about password later
-  const id = findUser(req.body.email);
-  res.cookie('user_id', id);
-  res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
@@ -158,10 +146,10 @@ app.post('/logout', (req, res) => {
 //not checking that both email and pass supplied "" is allowed for emal and pass
 app.post('/register', (req, res) => {
   //check if the id and email are value
-  if((req.body.email === "")||(req.body.password === "")) {
+  if ((req.body.email === "") || (req.body.password === "")) {
     res.status(400);
     res.end("Email and Password required");
-  } else if (checkIfUserExists(req.body.email)) { 
+  } else if (checkIfUserExists(req.body.email)) {
     res.status(400);
     //not secure!!
     res.end("Account with email already exists");
@@ -175,8 +163,6 @@ app.post('/register', (req, res) => {
   
     res.redirect('/urls');
   }
-  
-
 });
 
 app.listen(PORT, () => {
