@@ -12,13 +12,6 @@ app.set("view engine", "ejs");
 //needed to remove default data as it will be incompatible with new structure
 const urlDatabase = {};
 
-/* OLD
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
-*/
-
 const users = {};
 
 const verifyPassword = function(user_id, password) {
@@ -70,24 +63,24 @@ app.get('/urls/new', (req, res) => {
   const user = users[user_id];
   
   //redirect unsigned users to login page
-  if(!user) {
+  if (!user) {
     res.redirect('/login');
   } else {
     let templateVars = {user};
     res.render("./urls_new", templateVars);
-  }  
+  }
 });
 
 app.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const user_id = req.cookies.user_id;
   const user = users[user_id];
-  let templateVars = {shortURL, longURL: urlDatabase[shortURL], user};
+  let templateVars = {shortURL, longURL: urlDatabase[shortURL].longURL, user};
   res.render('./urls_show', templateVars);
 });
 
 app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -123,7 +116,7 @@ app.post('/urls', (req, res) => {
 //this route is used to modify an existing url
 app.post('/urls/:id', (req, res) => {
   const key = req.params.id;
-  urlDatabase[key] = req.body.longURL;
+  urlDatabase[key].longURL = req.body.longURL;
   // console.log('urlDatabase: ', urlDatabase);
   res.redirect('/urls');
 });
