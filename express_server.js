@@ -136,9 +136,16 @@ app.post('/login', (req, res) => {
 });
 */
 
+//need to update to check if user exists and password is correct
 app.post('/login', (req, res) => {
-  
-  res.cookie('username', req.body.username); //set cookie's key and value
+  /*
+  if(findUser(req.body.email) === undefined) {
+    
+  }
+  */
+  //worry about password later
+  const id = findUser(req.body.email);
+  res.cookie('user_id', id);
   res.redirect('/urls');
 });
 
