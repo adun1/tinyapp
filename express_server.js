@@ -23,7 +23,7 @@ const generateRandomString = function() {
 };
 
 app.get('/', (req, res) => {
-  console.log('Cookies: ', req.cookies.username);
+  // console.log('Cookies: ', req.cookies.username);
   res.send("Hello!");
 });
 
@@ -36,14 +36,16 @@ app.get('/users.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  const username = req.cookies.username;
-  let templateVars = {urls: urlDatabase, username};
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
+  let templateVars = {urls: urlDatabase, user};
   res.render('./urls_index', templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
-  const username = req.cookies.username;
-  let templateVars = {username};
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
+  let templateVars = {user};
   res.render("./urls_new", templateVars);
 });
 
@@ -51,8 +53,9 @@ app.get('/urls/:shortURL', (req, res) => {
   // console.log(req.params.shortURL);
   const shortURL = req.params.shortURL;
   // add username from cookie and add to template vars
-  const username = req.cookies.username;
-  let templateVars = {shortURL, longURL: urlDatabase[shortURL], username};
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
+  let templateVars = {shortURL, longURL: urlDatabase[shortURL], user};
   res.render('./urls_show', templateVars);
 });
 
@@ -62,8 +65,10 @@ app.get('/u/:shortURL', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  const username = req.cookies.username;
-  let templateVars = {username};
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
+  let templateVars = {user};
+  // console.log("req.cookies = ", req.cookies);
   res.render('./url_register', templateVars);
 });
 
@@ -100,16 +105,18 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', (req, res) => {
   //delete the cookie
-  res.clearCookie('username', '');
+  res.clearCookie('user_id', '');
   res.redirect('/urls');
 });
 
+//not checking that both email and pass supplied "" is allowed for emal and pass
 app.post('/register', (req, res) => {
   const id = generateRandomString();
   users[id] = {id, email: req.body.email, password: req.body.password};
   res.cookie('user_id', id);
 
-  console.log(users);
+  console.log("users = ", users);
+  console.log("users[user_id] = ", users[id]);
 
   res.redirect('/urls');
 });
