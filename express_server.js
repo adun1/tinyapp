@@ -14,6 +14,8 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {};
+
 //testing function required
 const generateRandomString = function() {
   let temp = uuidv4().split('-')[0].slice(2,10);
@@ -27,6 +29,10 @@ app.get('/', (req, res) => {
 
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase);
+});
+
+app.get('/users.json', (req, res) => {
+  res.json(users);
 });
 
 app.get('/urls', (req, res) => {
@@ -99,7 +105,13 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  
+  const id = generateRandomString();
+  users[id] = {id, email: req.body.email, password: req.body.password};
+  res.cookie('user_id', id);
+
+  console.log(users);
+
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {
