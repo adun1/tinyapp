@@ -59,11 +59,18 @@ app.get('/urls', (req, res) => {
   res.render('./urls_index', templateVars);
 });
 
+//modify to only registered users
 app.get('/urls/new', (req, res) => {
   const user_id = req.cookies.user_id;
   const user = users[user_id];
-  let templateVars = {user};
-  res.render("./urls_new", templateVars);
+  
+  //redirect unsigned users to login page
+  if(!user) {
+    res.redirect('/login');
+  } else {
+    let templateVars = {user};
+    res.render("./urls_new", templateVars);
+  }  
 });
 
 app.get('/urls/:shortURL', (req, res) => {
