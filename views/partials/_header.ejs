@@ -12,8 +12,8 @@
     </div>
     <!-- have logged in blah blah blah outside of form
     2 conditionals-->
-    <% if(username) { %>
-      <h5><%= username %></h5>
+    <% if(user) { %>
+      <h5><%= user.email %></h5>
       <!-- button to log out-->
       <form class="form-inline" action="/logout" method="POST">
         <button type="submit" class="btn btn-primary" style="margin: .25em">Logout</button>
