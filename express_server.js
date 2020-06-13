@@ -16,6 +16,14 @@ const urlDatabase = {
 
 const users = {};
 
+const checkIfUserExists = function(email) {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return true;
+    }
+  }
+  return false;
+};
 //testing function required
 const generateRandomString = function() {
   let temp = uuidv4().split('-')[0].slice(2,10);
@@ -111,14 +119,26 @@ app.post('/logout', (req, res) => {
 
 //not checking that both email and pass supplied "" is allowed for emal and pass
 app.post('/register', (req, res) => {
-  const id = generateRandomString();
-  users[id] = {id, email: req.body.email, password: req.body.password};
-  res.cookie('user_id', id);
+  //check if the id and email are value
+  if((req.body.email === "")||(req.body.password === "")) {
+    res.status(400);
+    res.end("Email and Password required");
+  } else if (checkIfUserExists(req.body.email)) { 
+    res.status(400);
+    //not secure!!
+    res.end("Account with email already exists");
+  } else {
+    const id = generateRandomString();
+    users[id] = {id, email: req.body.email, password: req.body.password};
+    res.cookie('user_id', id);
+  
+    console.log("users = ", users);
+    console.log("users[user_id] = ", users[id]);
+  
+    res.redirect('/urls');
+  }
+  
 
-  console.log("users = ", users);
-  console.log("users[user_id] = ", users[id]);
-
-  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {
