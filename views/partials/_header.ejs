@@ -19,10 +19,8 @@
         <button type="submit" class="btn btn-primary" style="margin: .25em">Logout</button>
       </form>
     <% } else { %>
-      <form class="form-inline" action="/login" method="POST">
-        <input class="form-control" type="text" name="username" placeholder="Username" style="width: 300px; margin: .25em">
-        <button type="submit" class="btn btn-primary" style="margin: .25em">Login</button>
-      </form>
+      <a class="btn btn-primary" href="/register" style="margin: .25em">Register</a>
+      <a class="btn btn-primary" href="/login" style="margin: .25em">Login</a>
     <% } %>
       
   </nav>
