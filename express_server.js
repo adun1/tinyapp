@@ -9,10 +9,15 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
 
+//needed to remove default data as it will be incompatible with new structure
+const urlDatabase = {};
+
+/* OLD
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+*/
 
 const users = {};
 
@@ -110,7 +115,8 @@ app.get('/hello', (req, res) => {
 //note not checking for existing urls yet before adding
 app.post('/urls', (req, res) => {
   const key = generateRandomString();
-  urlDatabase[key] = req.body.longURL;
+  const user_id = req.cookies.user_id;
+  urlDatabase[key] = {longURL: req.body.longURL, user_id};
   res.redirect(`/urls/${key}`);
 });
 
