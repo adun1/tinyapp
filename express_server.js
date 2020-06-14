@@ -14,8 +14,17 @@ const urlDatabase = {};
 
 const users = {};
 
+const urlsForUser = function(id) {
+  let soln = {};
+  for (const urlId in urlDatabase) {
+    if (urlDatabase[urlId].user_id === id) {
+      soln[urlId] = urlDatabase[urlId];
+    }
+  }
+  return soln;
+};
+
 const verifyPassword = function(user_id, password) {
-  console.log('verify password, user[user_id]', console.log(users[user_id]));
   return (users[user_id].password === password);
 };
 
@@ -53,8 +62,14 @@ app.get('/users.json', (req, res) => {
 app.get('/urls', (req, res) => {
   const user_id = req.cookies.user_id;
   const user = users[user_id];
-  let templateVars = {urls: urlDatabase, user};
-  res.render('./urls_index', templateVars);
+  if (!user) {
+    res.status(403);
+    res.end("Please Register or Login first");
+  } else {
+    const userUrlDatabase = urlsForUser(user_id);
+    let templateVars = {urls: userUrlDatabase, user};
+    res.render('./urls_index', templateVars);
+  }
 });
 
 //modify to only registered users
@@ -71,14 +86,22 @@ app.get('/urls/new', (req, res) => {
   }
 });
 
+// only show urls that belong to the user when they are logged in
 app.get('/urls/:shortURL', (req, res) => {
-  if (!urlDatabase[req.params.shortURL]) {
-    res.status(400);
-    res.end("Please specify an existing short URL");
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
+  if (!user) {
+    res.status(403);
+    res.end("Please sign in first");
+    return;
+  }
+
+  const shortURL = req.params.shortURL;
+  const userUrlDatabase = urlsForUser(user_id);
+  if (!userUrlDatabase[shortURL]) {
+    res.status(403);
+    res.end("Please specify a url URL that belongs to you");
   } else {
-    const shortURL = req.params.shortURL;
-    const user_id = req.cookies.user_id;
-    const user = users[user_id];
     let templateVars = {shortURL, longURL: urlDatabase[shortURL].longURL, user};
     res.render('./urls_show', templateVars);
   }
@@ -157,7 +180,7 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
   //delete the cookie
   res.clearCookie('user_id', '');
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 app.post('/register', (req, res) => {
@@ -173,10 +196,6 @@ app.post('/register', (req, res) => {
     const id = generateRandomString();
     users[id] = {id, email: req.body.email, password: req.body.password};
     res.cookie('user_id', id);
-  
-    console.log("users = ", users);
-    console.log("users[user_id] = ", users[id]);
-  
     res.redirect('/urls');
   }
 });
