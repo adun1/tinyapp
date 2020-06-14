@@ -144,22 +144,49 @@ app.get('/hello', (req, res) => {
 app.post('/urls', (req, res) => {
   const key = generateRandomString();
   const user_id = req.cookies.user_id;
-  urlDatabase[key] = {longURL: req.body.longURL, user_id};
-  res.redirect(`/urls/${key}`);
+  const user = users[user_id];
+  if (!user) {
+    res.status(403);
+    res.end("User must be logged in!\n");
+  } else {
+    urlDatabase[key] = {longURL: req.body.longURL, user_id};
+    res.redirect(`/urls/${key}`);
+  }
 });
 
 //this route is used to modify an existing url
 app.post('/urls/:id', (req, res) => {
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
   const key = req.params.id;
-  urlDatabase[key].longURL = req.body.longURL;
-  // console.log('urlDatabase: ', urlDatabase);
-  res.redirect('/urls');
+  if (!user) {
+    res.status(403);
+    res.end("User must be logged in!!\n");
+  } else if (urlDatabase[key].user_id !== user_id) {
+    res.status(403);
+    res.end("User can only modify their own urls!!\n");
+  } else {
+    urlDatabase[key].longURL = req.body.longURL;
+    // console.log('urlDatabase: ', urlDatabase);
+    res.redirect('/urls');
+  }
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
+  const user_id = req.cookies.user_id;
+  const user = users[user_id];
   const key = req.params.shortURL;
-  delete urlDatabase[key];
-  res.redirect(`/urls`);
+  if (!user) {
+    res.status(403);
+    res.end("User must be logged in!!!\n");
+  } else if (urlDatabase[key].user_id !== user_id) {
+    res.status(403);
+    res.end("User can only delete their own urls!!!\n");
+  } else {
+    delete urlDatabase[key];
+    res.redirect(`/urls`);
+  }
+  
 });
 
 app.post('/login', (req, res) => {
