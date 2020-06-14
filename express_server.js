@@ -1,13 +1,21 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: [
+    'supersecretstringthatshouldideallybesavednotincodebutforsuresuperlong',
+    'anotherlongone']
+
+  //Cookie Options
+  // maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 app.set("view engine", "ejs");
 
 //needed to remove default data as it will be incompatible with new structure
@@ -66,7 +74,7 @@ app.get('/users.json', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   if (!user) {
     res.status(403);
@@ -80,7 +88,7 @@ app.get('/urls', (req, res) => {
 
 //modify to only registered users
 app.get('/urls/new', (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   
   //redirect unsigned users to login page
@@ -94,7 +102,7 @@ app.get('/urls/new', (req, res) => {
 
 // only show urls that belong to the user when they are logged in
 app.get('/urls/:shortURL', (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   if (!user) {
     res.status(403);
@@ -126,19 +134,19 @@ app.get('/u/:shortURL', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   let templateVars = {user};
-  // console.log("req.cookies = ", req.cookies);
+  // console.log("req.session = ", req.session);
   res.render('./url_register', templateVars);
 });
 
 //created black login catch
 app.get('/login', (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   let templateVars = {user};
-  // console.log("req.cookies = ", req.cookies);
+  // console.log("req.session = ", req.session);
   res.render('./urls_login', templateVars);
 });
 
@@ -149,7 +157,7 @@ app.get('/hello', (req, res) => {
 //note not checking for existing urls yet before adding
 app.post('/urls', (req, res) => {
   const key = generateRandomString();
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   if (!user) {
     res.status(403);
@@ -162,7 +170,7 @@ app.post('/urls', (req, res) => {
 
 //this route is used to modify an existing url
 app.post('/urls/:id', (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   const key = req.params.id;
   if (!user) {
@@ -179,7 +187,7 @@ app.post('/urls/:id', (req, res) => {
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-  const user_id = req.cookies.user_id;
+  const user_id = req.session.user_id;
   const user = users[user_id];
   const key = req.params.shortURL;
   if (!user) {
@@ -205,14 +213,14 @@ app.post('/login', (req, res) => {
     res.status(403);
     res.end("Username and password incorrect");
   } else {
-    res.cookie('user_id', id);
+    req.session.user_id = id;
     res.redirect('/urls');
   }
 });
 
 app.post('/logout', (req, res) => {
-  //delete the cookie
-  res.clearCookie('user_id', '');
+  //delete the cookie how do we clear cookie?
+  req.session = null;
   res.redirect('/login');
 });
 
@@ -231,7 +239,7 @@ app.post('/register', (req, res) => {
   } else {
     const id = generateRandomString();
     users[id] = {id, email, password: hashedPassword};
-    res.cookie('user_id', id);
+    req.session.user_id = id;
     res.redirect('/urls');
   }
 });
