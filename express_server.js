@@ -23,11 +23,11 @@ const urlDatabase = {};
 
 const users = {};
 
-const urlsForUser = function(id) {
+const urlsForUser = function(id, database) {
   let soln = {};
-  for (const urlId in urlDatabase) {
-    if (urlDatabase[urlId].user_id === id) {
-      soln[urlId] = urlDatabase[urlId];
+  for (const urlId in database) {
+    if (database[urlId].user_id === id) {
+      soln[urlId] = database[urlId];
     }
   }
   return soln;
@@ -42,7 +42,6 @@ const verifyPassword = function(user_id, password, database) {
   return bcrypt.compareSync(password, user.password);
 };
 
-//refactured to make it modular
 const getUserByEmail = function(email, database) {
   for (const user in database) {
     if (database[user].email === email) {
@@ -52,7 +51,6 @@ const getUserByEmail = function(email, database) {
   return undefined;
 };
 
-//refactured to make it modular
 const checkIfUserExists = function(email, database) {
   if (getUserByEmail(email, database) === undefined) return false;
   return true;
@@ -82,7 +80,7 @@ app.get('/urls', (req, res) => {
     res.status(403);
     res.end("Please Register or Login first");
   } else {
-    const userUrlDatabase = urlsForUser(user_id);
+    const userUrlDatabase = urlsForUser(user_id, urlDatabase);
     let templateVars = {urls: userUrlDatabase, user};
     res.render('./urls_index', templateVars);
   }
@@ -113,7 +111,7 @@ app.get('/urls/:shortURL', (req, res) => {
   }
 
   const shortURL = req.params.shortURL;
-  const userUrlDatabase = urlsForUser(user_id);
+  const userUrlDatabase = urlsForUser(user_id, urlDatabase);
   if (!userUrlDatabase[shortURL]) {
     res.status(403);
     res.end("Please specify a url URL that belongs to you");
