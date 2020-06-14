@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
 
@@ -25,7 +26,12 @@ const urlsForUser = function(id) {
 };
 
 const verifyPassword = function(user_id, password) {
-  return (users[user_id].password === password);
+  //check if user exists before checking password
+  const user = users[user_id];
+  if (!user) {
+    return false;
+  }
+  return bcrypt.compareSync(password, user.password);
 };
 
 const findUser = function(email) {
@@ -212,16 +218,19 @@ app.post('/logout', (req, res) => {
 
 app.post('/register', (req, res) => {
   //check if the id and email are valid
-  if ((req.body.email === "") || (req.body.password === "")) {
+  const email = req.body.email;
+  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
+  if ((email === "") || (password === "")) {
     res.status(400);
     res.end("Email and Password required");
-  } else if (checkIfUserExists(req.body.email)) {
+  } else if (checkIfUserExists(email)) {
     res.status(400);
     //not secure!!
     res.end("Account with email already exists");
   } else {
     const id = generateRandomString();
-    users[id] = {id, email: req.body.email, password: req.body.password};
+    users[id] = {id, email, password: hashedPassword};
     res.cookie('user_id', id);
     res.redirect('/urls');
   }
