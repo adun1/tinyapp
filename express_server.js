@@ -42,17 +42,19 @@ const verifyPassword = function(user_id, password) {
   return bcrypt.compareSync(password, user.password);
 };
 
-const findUser = function(email) {
-  for (const user in users) {
-    if (users[user].email === email) {
+//refactured to make it modular
+const getUserByEmail = function(email, database) {
+  for (const user in database) {
+    if (database[user].email === email) {
       return user;
     }
   }
   return undefined;
 };
 
-const checkIfUserExists = function(email) {
-  if (findUser(email) === undefined) return false;
+//refactured to make it modular
+const checkIfUserExists = function(email, database) {
+  if (getUserByEmail(email, database) === undefined) return false;
   return true;
 };
 
@@ -206,10 +208,10 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const id = findUser(email); //id could be undefined checks below
+  const id = getUserByEmail(email, users); //id could be undefined checks below
 
   //make sure the user exists and the provided password is correct
-  if ((!checkIfUserExists(email)) || (!verifyPassword(id, password))) {
+  if ((!checkIfUserExists(email, users)) || (!verifyPassword(id, password))) {
     res.status(403);
     res.end("Username and password incorrect");
   } else {
@@ -232,7 +234,7 @@ app.post('/register', (req, res) => {
   if ((email === "") || (password === "")) {
     res.status(400);
     res.end("Email and Password required");
-  } else if (checkIfUserExists(email)) {
+  } else if (checkIfUserExists(email, users)) {
     res.status(400);
     //not secure!!
     res.end("Account with email already exists");
