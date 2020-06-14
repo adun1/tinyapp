@@ -33,9 +33,9 @@ const urlsForUser = function(id) {
   return soln;
 };
 
-const verifyPassword = function(user_id, password) {
+const verifyPassword = function(user_id, password, database) {
   //check if user exists before checking password
-  const user = users[user_id];
+  const user = database[user_id];
   if (!user) {
     return false;
   }
@@ -211,7 +211,7 @@ app.post('/login', (req, res) => {
   const id = getUserByEmail(email, users); //id could be undefined checks below
 
   //make sure the user exists and the provided password is correct
-  if ((!checkIfUserExists(email, users)) || (!verifyPassword(id, password))) {
+  if ((!checkIfUserExists(email, users)) || (!verifyPassword(id, password, users))) {
     res.status(403);
     res.end("Username and password incorrect");
   } else {
