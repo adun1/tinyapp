@@ -21,7 +21,14 @@ const urlDatabase = {};
 const users = {};
 
 app.get('/', (req, res) => {
-  res.send("Hello!");
+  const user_id = req.session.user_id;
+  const user = users[user_id];
+  //redirect unsigned users to login page
+  if (!user) {
+    res.redirect('/login');
+  } else {
+    res.redirect('/urls');
+  }
 });
 
 app.get('/urls.json', (req, res) => {
