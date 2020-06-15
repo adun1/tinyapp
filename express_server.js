@@ -68,6 +68,7 @@ app.get('/urls/new', (req, res) => {
 
 // only show urls that belong to the user when they are logged in
 app.get('/urls/:shortURL', (req, res) => {
+  //check if user logged in
   const user_id = req.session.user_id;
   const user = users[user_id];
   if (!user) {
@@ -76,6 +77,7 @@ app.get('/urls/:shortURL', (req, res) => {
     return;
   }
 
+  //show short url in database
   const shortURL = req.params.shortURL;
   const userUrlDatabase = urlsForUser(user_id, urlDatabase);
   if (!userUrlDatabase[shortURL]) {
@@ -89,6 +91,7 @@ app.get('/urls/:shortURL', (req, res) => {
   
 });
 
+//redirect to the logurl specified in the shortURL
 app.get('/u/:shortURL', (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     res.status(400);
@@ -99,6 +102,7 @@ app.get('/u/:shortURL', (req, res) => {
   }
 });
 
+//Registration page
 app.get('/register', (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
@@ -106,7 +110,7 @@ app.get('/register', (req, res) => {
   res.render('./url_register', templateVars);
 });
 
-//created black login catch
+//Signin page
 app.get('/login', (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
@@ -118,7 +122,7 @@ app.get('/hello', (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>");
 });
 
-//note not checking for existing urls yet before adding
+//create a new url if logged in
 app.post('/urls', (req, res) => {
   const key = generateRandomString();
   const user_id = req.session.user_id;
@@ -149,6 +153,7 @@ app.post('/urls/:id', (req, res) => {
   }
 });
 
+//delete a url if the user making the request owns it
 app.post('/urls/:shortURL/delete', (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
@@ -182,7 +187,6 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  //delete the cookie how do we clear cookie?
   req.session = null;
   res.redirect('/urls');
 });
@@ -197,7 +201,6 @@ app.post('/register', (req, res) => {
     res.end("Email and Password required");
   } else if (checkIfUserExists(email, users)) {
     res.status(400);
-    //not secure!!
     res.end("Account with email already exists");
   } else {
     const id = generateRandomString();
