@@ -4,9 +4,14 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
+### Login Page
 !["Screenshot of Login page"](https://github.com/adun1/tinyapp/blob/master/docs/loginScreen.jpg)
-!["screenshot of Urls page"](https://github.com/adun1/tinyapp/blob/master/docs/urlView.jpg)
+
+### URL View/Edit page
 !["screenshot of Url View page"](https://github.com/adun1/tinyapp/blob/master/docs/urlsPage.jpg)
+
+### URLs page
+!["screenshot of Urls page"](https://github.com/adun1/tinyapp/blob/master/docs/urlView.jpg)
 
 ## Dependencies
 
@@ -16,6 +21,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - bcrypt
 - body-parser
 - cookie-session
+- uuid
 
 ## Getting Started
 
