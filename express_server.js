@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { v4: uuidv4 } = require('uuid');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 const {urlsForUser, verifyPassword, getUserByEmail, checkIfUserExists, generateRandomString} = require('./helpers');
