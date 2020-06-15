@@ -184,7 +184,7 @@ app.post('/login', (req, res) => {
 app.post('/logout', (req, res) => {
   //delete the cookie how do we clear cookie?
   req.session = null;
-  res.redirect('/login');
+  res.redirect('/urls');
 });
 
 app.post('/register', (req, res) => {
