@@ -96,7 +96,6 @@ app.get('/register', (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
   let templateVars = {user};
-  // console.log("req.session = ", req.session);
   res.render('./url_register', templateVars);
 });
 
@@ -105,7 +104,6 @@ app.get('/login', (req, res) => {
   const user_id = req.session.user_id;
   const user = users[user_id];
   let templateVars = {user};
-  // console.log("req.session = ", req.session);
   res.render('./urls_login', templateVars);
 });
 
@@ -140,7 +138,6 @@ app.post('/urls/:id', (req, res) => {
     res.end("User can only modify their own urls!!\n");
   } else {
     urlDatabase[key].longURL = req.body.longURL;
-    // console.log('urlDatabase: ', urlDatabase);
     res.redirect('/urls');
   }
 });
